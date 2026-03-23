@@ -1,6 +1,7 @@
 package ftt.controllers;
 
 import ftt.*;
+import ftt.data.Client;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -10,15 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import jxl.CellView;
 import jxl.Workbook;
-import jxl.format.Border;
-import jxl.format.BorderLineStyle;
 import jxl.write.*;
-import jxl.write.Label;
-import jxl.write.Number;
 import jxl.write.biff.RowsExceededException;
 
 import java.awt.*;

@@ -1,10 +1,8 @@
 package ftt.controllers;
 
-import ftt.FTTConnector;
 import ftt.Line;
-import javafx.beans.value.ChangeListener;
+import ftt.data.FTTConnector;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;

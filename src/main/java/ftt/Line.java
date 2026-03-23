@@ -1,6 +1,6 @@
 package ftt;
 
-import ftt.Client;
+import ftt.data.Client;
 
 public class Line {
     Client client;

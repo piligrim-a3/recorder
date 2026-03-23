@@ -1,6 +1,8 @@
 package ftt;
 
 import ftt.controllers.RecController;
+import ftt.data.Client;
+import ftt.data.DataReceiveListener;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

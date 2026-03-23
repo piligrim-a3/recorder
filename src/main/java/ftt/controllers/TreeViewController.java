@@ -1,9 +1,9 @@
 package ftt.controllers;
 
-import ftt.Client;
-import ftt.FTTConnector;
+
 import ftt.Line;
-import ftt.LineItem;
+import ftt.data.Client;
+import ftt.data.FTTConnector;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
