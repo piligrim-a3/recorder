@@ -1,0 +1,75 @@
+.main {
+
+}
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: #eaf2f3;
+}
+
+.tab-pane .co{
+
+}
+.tab-pane
+{
+    -fx-tab-min-width:40px;
+    -fx-tab-min-height: 40px;
+}
+
+.tab{
+    -fx-background-insets: 0 1 0 1,0,0;
+}
+.tab-pane .tab
+{
+    -fx-background-color: #f5f9f9;
+    -fx-focus-color: transparent;
+}
+
+.tab-pane .tab:selected
+{
+    -fx-background-color: #eaf2f3;
+}
+
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #f5f9f9;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+
+}
+
+.bottom-pane {
+    -fx-background-color: #eaf2f3;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #94bcc1;
+}
+
+#tableView .table-cell {
+    -fx-alignment: CENTER;
+}
+
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #96b946;
+}
+
+#gtab {
+    -fx-background-image: url("../images/line26.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+    -fx-border-width: 1 1 1 1;
+}
+
+#stab {
+    -fx-background-image: url("../images/cogwheel43.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+}
+
+#ctab {
+    -fx-background-image: url("../images/marketing8.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center center;
+}

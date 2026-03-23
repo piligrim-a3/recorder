@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="537.0" prefWidth="800.0" stylesheets="@../css/main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ftt.controllers.MainController">
+   <bottom>
+      <HBox prefHeight="25.0" prefWidth="600.0" styleClass="bottom-pane" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab id="gtab" fx:id="gtab" />
+          <Tab id="stab" fx:id="stab" />
+          <Tab id="ctab" fx:id="ctab" />
+        </tabs>
+      </TabPane>
+   </center>
+</BorderPane>
