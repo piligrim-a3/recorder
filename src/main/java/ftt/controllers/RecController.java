@@ -64,6 +64,7 @@ public class RecController implements Initializable {
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
         mainController.getConnector().addDataReceiveListener(agregator);
+        mainController.getConnector().setChartDataProvider(agregator);
     }
 
     @FXML

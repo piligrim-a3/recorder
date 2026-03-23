@@ -1,5 +1,8 @@
 package ftt.data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.event.ActionEvent;
@@ -20,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class FTTConnector implements ActionReceive, ActionListener, Runnable {
 
     ArrayList<DataReceiveListener> dataReceiveListeners = new ArrayList<>();
+    private ChartDataProvider chartDataProvider;
 
     public static final int SERVER = 0;
     public static final int CLIENT = 1;
@@ -31,6 +35,8 @@ public class FTTConnector implements ActionReceive, ActionListener, Runnable {
     public static final int CODE_CLOSE   = 15;
     public static final int CODE_LIVE    = 16;
     public static final int CODE_OK      = 17;
+    public static final int CODE_REQUEST = 18;
+    public static final int CODE_REQUEST_DATA = 19;
 
     public static final int LIVE_TIMEOUT = 30;
 
@@ -255,7 +261,8 @@ public class FTTConnector implements ActionReceive, ActionListener, Runnable {
             if(getType() == CLIENT) {
                 switch (mes.getInt("code")) {
                     case CODE_OPTIONS:
-                        if(mes.getInt("type") != SERVER) break;
+                        // todo вернуть для того чтобы самописцы не видели друг друга
+//                        if(mes.getInt("type") != SERVER) break;
                         System.out.println("CODE_OPTIONS");
                         System.out.println("PORT:   " + port);
                         System.out.println("ADRES: " + address);
@@ -309,6 +316,30 @@ public class FTTConnector implements ActionReceive, ActionListener, Runnable {
                             }
                         }
                         break;
+                    case CODE_REQUEST_DATA:
+                        System.out.println("CODE_REQUEST received from client - processing chart data response");
+                        System.out.println(mes);
+                        if (mes.has("request_id") && "chart_data".equals(mes.getString("request_id"))) {
+                            JSONObject response = mes.getJSONObject("response");
+                            System.out.println("Received chart data with " + response.getJSONArray("data").length() + " points");
+                        }
+                        break;
+                    case CODE_REQUEST:
+                        System.out.println("CODE_REQUEST received from " + address + ":" + port);
+                        System.out.println("chartDataProvider: " +chartDataProvider);
+                        UUID requestUuid = UUID.fromString(mes.getString("uuid"));
+                        Client requestClient = new Client();
+                        requestClient.setClientAddress(address);
+                        requestClient.setClientPort(port);
+                        requestClient.setUuid(requestUuid);
+                        if (chartDataProvider != null) {
+                            List<Map<String, Object>> chartData = chartDataProvider.getChartData();
+                            Map<String, String> metadata = chartDataProvider.getChartMetadata();
+                            sendChartData(requestClient, chartData, metadata);
+                        } else {
+                            sendRequestResponse(requestClient, "chart_data", new JSONObject().put("error", "No chart data provider available"));
+                        }
+                        break;
                 }
             } else if(getType() == SERVER) {
                 switch (mes.getInt("code")) {
@@ -335,6 +366,7 @@ public class FTTConnector implements ActionReceive, ActionListener, Runnable {
                         if(cl != null) {
                             getClients().remove(cl);
                         }
+                        break;
                     case CODE_LIVE:
 //                        System.out.println("CODE_LIVE");
                         UUID uuid2 = UUID.fromString(mes.getString("uuid"));
@@ -420,5 +452,63 @@ public class FTTConnector implements ActionReceive, ActionListener, Runnable {
         properties.clear();
     }
 
+    public ChartDataProvider getChartDataProvider() {
+        return chartDataProvider;
+    }
+
+    public void setChartDataProvider(ChartDataProvider chartDataProvider) {
+        System.out.println("setChartDataProvider "+chartDataProvider);
+        this.chartDataProvider = chartDataProvider;
+    }
+
+    public void sendChartData(Client client, List<Map<String, Object>> chartData, Map<String, String> metadata) {
+        if (client == null || chartData == null) return;
+        
+        Map<String, Object> mes = new HashMap<>();
+        mes.put("uuid", getUuid().toString());
+        mes.put("type", getType());
+        mes.put("code", CODE_REQUEST_DATA);
+        mes.put("request_id", "chart_data");
+
+        Map<String, Object> response = new HashMap<>();
+        if (metadata != null) {
+            response.put("metadata", metadata);
+        }
+
+        response.put("data", chartData);
+        mes.put("response", response);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            connector.send(mapper.writeValueAsString(mes), client.getClientAddress(), client.getClientPort());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sendRequestResponse(Client client, String requestId, Object data) {
+        JSONObject mes = new JSONObject();
+        mes.put("uuid", getUuid().toString());
+        mes.put("type", getType());
+        mes.put("code", CODE_REQUEST_DATA);
+        mes.put("request_id", requestId);
+        mes.put("response", data);
+        connector.send(mes.toString(), client.getClientAddress(), client.getClientPort());
+    }
+
+    public void requestChartData(Client client) {
+        if (client == null) return;
+        
+        JSONObject mes = new JSONObject();
+        mes.put("uuid", getUuid().toString());
+        mes.put("type", getType());
+        mes.put("code", CODE_REQUEST);
+        mes.put("name", name);
+        mes.put("request_type", "chart_data");
+        
+        connector.send(mes.toString(), client.getClientAddress(), client.getClientPort());
+        System.out.println("Chart data request sent to " + client.getName());
+    }
 
 }

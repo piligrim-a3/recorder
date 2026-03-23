@@ -58,7 +58,7 @@ public class MainController implements Initializable {
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        connector = new FTTConnector("V1",FTTConnector.CLIENT);
+        connector = new FTTConnector("recorder",FTTConnector.CLIENT);
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/detective.fxml"));
         try {

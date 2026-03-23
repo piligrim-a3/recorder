@@ -1,6 +1,7 @@
 package ftt;
 
 import ftt.controllers.RecController;
+import ftt.data.ChartDataProvider;
 import ftt.data.Client;
 import ftt.data.DataReceiveListener;
 import javafx.application.Platform;
@@ -22,12 +23,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class Agregator implements DataReceiveListener {
+public class Agregator implements DataReceiveListener, ChartDataProvider {
 
     Sinhronizer sinhronizer = new Sinhronizer();
 
@@ -149,20 +150,17 @@ public class Agregator implements DataReceiveListener {
             writeX = curentX;
             if(minX > curentX) minX = curentX;
             if(maxX < curentX) maxX = curentX;
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
+            Platform.runLater(() -> {
 //                    int lb = (int)(minX - Math.abs((maxX-minX))/20);
 //                    int ub = (int)(maxX + Math.abs((maxX-minX))/20);
 //                    xAxis.setUpperBound(ub);
 //                    xAxis.setLowerBound(lb);
 //                    xAxis.setTickUnit((int)((Math.abs(ub - lb) / 15)));
-                    for(LineItem li: y) {
-                        li.setWriteY(li.getLastY());
-                        XYChart.Data data = new XYChart.Data(curentX, li.getLastY());
-                        data.setNode(new HoveredThresholdNode(data, li));
-                        li.getSeries().getData().add(data);
-                    }
+                for(LineItem li: y) {
+                    li.setWriteY(li.getLastY());
+                    XYChart.Data data = new XYChart.Data(curentX, li.getLastY());
+                    data.setNode(new HoveredThresholdNode(data, li));
+                    li.getSeries().getData().add(data);
                 }
             });
 
@@ -289,5 +287,53 @@ public class Agregator implements DataReceiveListener {
         System.out.println(yAxis.getLowerBound() + " " + yAxis.getUpperBound());
         zoomRect.setWidth(0);
         zoomRect.setHeight(0);
+    }
+
+    // Implementation of ChartDataProvider interface
+    @Override
+    public List<Map<String, Object>> getChartData() {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (LineItem li : y) {
+            Map<String, Object> line = new HashMap<>();
+            List<Map<String, Object>> dataList = new ArrayList<>();
+            for(Object data: li.getSeries().getData()) {
+                XYChart.Data<Number, Number> yData = (XYChart.Data<Number, Number>) data;
+                Map<String, Object> point = new HashMap<>();
+                point.put("x", yData.getXValue());
+                point.put("y", yData.getYValue());
+                dataList.add(point);
+            }
+            line.put("name", li.getLine().getProp());
+            line.put("points", dataList);
+            result.add(line);
+        }
+
+        
+        return result;
+    }
+    
+    @Override
+    public Map<String, String> getChartMetadata() {
+        Map<String, String> metadata = new HashMap<>();
+        
+        if (x != null) {
+            metadata.put("x_axis", x.getLine().getProp());
+            metadata.put("x_client", x.getLine().getClient().getName());
+        }
+        
+        List<String> yAxes = new ArrayList<>();
+        for (LineItem li : y) {
+            yAxes.add(li.getLine().getProp());
+        }
+        metadata.put("y_axes", String.join(",", yAxes));
+        
+        metadata.put("total_points", String.valueOf(getChartData().size()));
+        metadata.put("x_min", minX != Double.MAX_VALUE ? minX.toString() : "N/A");
+        metadata.put("x_max", maxX != -Double.MAX_VALUE ? maxX.toString() : "N/A");
+        metadata.put("pause", String.valueOf(pause));
+        metadata.put("recording", String.valueOf(!pause && controller != null && controller.getMainController() != null && controller.getMainController().getRecController() != null));
+        
+        return metadata;
     }
 }

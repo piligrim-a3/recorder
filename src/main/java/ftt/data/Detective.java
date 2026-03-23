@@ -58,7 +58,7 @@ public class Detective  implements Runnable {
                 try {
                     System.out.println("DETECTIVE: RECEIVE... ");
                     JSONObject mes = new JSONObject(sentence);
-                    System.out.println(mes.toString());
+                    System.out.println(mes);
                     int code = mes.getInt("code");
                     if(code == FTTConnector.CODE_FIND) {
                         System.out.println("DETECTIVE: OK.");
